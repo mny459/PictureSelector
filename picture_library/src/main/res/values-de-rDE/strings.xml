@@ -58,4 +58,5 @@
 
     <string name="picture_photo_pictures">Fotografie</string>
     <string name="picture_photo_recording">Lange Presse Videoband</string>
+    <string name="picture_preview_edit">Edit</string>
 </resources>

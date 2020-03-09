@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.luck.picture.lib.R;
@@ -35,6 +38,7 @@ import java.util.List;
  */
 
 public class PictureSimpleFragmentAdapter extends PagerAdapter {
+    private static final String TAG = "PictureSimpleFragmentAd";
     private List<LocalMedia> images;
     private OnCallBackActivity onBackPressed;
     private PictureSelectionConfig config;
@@ -91,6 +95,7 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View contentView = mCacheView.get(position);
+        Log.d(TAG, position+" ===== "+contentView + " instantiateItem: " + images.get(position).getEditPath());
         if (contentView == null) {
             contentView = LayoutInflater.from(container.getContext())
                     .inflate(R.layout.picture_image_preview, container, false);
@@ -112,6 +117,8 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
                 } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
                     // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
                     path = media.getCompressPath();
+                } else if (!TextUtils.isEmpty(media.getEditPath())) {
+                    path = media.getEditPath();
                 } else {
                     path = media.getPath();
                 }
@@ -160,6 +167,50 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
                 });
             }
             mCacheView.put(position, contentView);
+        } else if (images.get(position) != null && !TextUtils.isEmpty(images.get(position).getEditPath())) {
+            /// 只有这种情况会要求再刷新
+            // 常规图控件
+            final PhotoView imageView = contentView.findViewById(R.id.preview_image);
+            // 长图控件
+            final SubsamplingScaleImageView longImg = contentView.findViewById(R.id.longImg);
+            // 视频播放按钮
+            LocalMedia media = images.get(position);
+            if (media != null) {
+                final String mimeType = media.getMimeType();
+                final String path = media.getEditPath();
+
+                boolean isGif = PictureMimeType.isGif(mimeType);
+                final boolean eqLongImg = MediaUtils.isLongImg(media);
+                imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
+                longImg.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
+                // 压缩过的gif就不是gif了
+                if (isGif && !media.isCompressed()) {
+                    if (config != null && config.imageEngine != null) {
+                        config.imageEngine.loadAsGifImage
+                                (contentView.getContext(), path, imageView);
+                    }
+                } else {
+                    if (config != null && config.imageEngine != null) {
+                        if (eqLongImg) {
+                            displayLongPic(SdkVersionUtils.checkedAndroid_Q()
+                                    ? Uri.parse(path) : Uri.fromFile(new File(path)), longImg);
+                        } else {
+                            config.imageEngine.loadImage
+                                    (contentView.getContext(), path, imageView);
+                        }
+                    }
+                }
+                imageView.setOnViewTapListener((view, x, y) -> {
+                    if (onBackPressed != null) {
+                        onBackPressed.onActivityBackPressed();
+                    }
+                });
+                longImg.setOnClickListener(v -> {
+                    if (onBackPressed != null) {
+                        onBackPressed.onActivityBackPressed();
+                    }
+                });
+            }
         }
         (container).addView(contentView, 0);
         return contentView;
@@ -179,5 +230,15 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
         longImg.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_CROP);
         longImg.setDoubleTapZoomDpi(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
         longImg.setImage(ImageSource.uri(uri), new ImageViewState(0, new PointF(0, 0), 0));
+    }
+
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        Log.d(TAG, "getItemPosition: "+images);
+        if (images != null && images.size() != 0) {
+            return POSITION_NONE;
+        } else {
+            return super.getItemPosition(object);
+        }
     }
 }

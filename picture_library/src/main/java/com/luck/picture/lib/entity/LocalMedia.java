@@ -41,6 +41,10 @@ public class LocalMedia implements Parcelable {
      * cut path
      */
     private String cutPath;
+    /**
+     * edit path
+     */
+    private String editPath;
 
     /**
      * Note: this field is only returned in Android Q version
@@ -301,6 +305,14 @@ public class LocalMedia implements Parcelable {
         this.id = id;
     }
 
+    public String getEditPath() {
+        return editPath;
+    }
+
+    public void setEditPath(String editPath) {
+        this.editPath = editPath;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -314,6 +326,7 @@ public class LocalMedia implements Parcelable {
         dest.writeString(this.originalPath);
         dest.writeString(this.compressPath);
         dest.writeString(this.cutPath);
+        dest.writeString(this.editPath);
         dest.writeString(this.androidQToPath);
         dest.writeLong(this.duration);
         dest.writeByte(this.isChecked ? (byte) 1 : (byte) 0);
@@ -337,6 +350,7 @@ public class LocalMedia implements Parcelable {
         this.originalPath = in.readString();
         this.compressPath = in.readString();
         this.cutPath = in.readString();
+        this.editPath = in.readString();
         this.androidQToPath = in.readString();
         this.duration = in.readLong();
         this.isChecked = in.readByte() != 0;
@@ -364,4 +378,31 @@ public class LocalMedia implements Parcelable {
             return new LocalMedia[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "LocalMedia{" +
+                "id=" + id +
+                ", path='" + path + '\'' +
+                ", realPath='" + realPath + '\'' +
+                ", originalPath='" + originalPath + '\'' +
+                ", compressPath='" + compressPath + '\'' +
+                ", cutPath='" + cutPath + '\'' +
+                ", editPath='" + editPath + '\'' +
+                ", androidQToPath='" + androidQToPath + '\'' +
+                ", duration=" + duration +
+                ", isChecked=" + isChecked +
+                ", isCut=" + isCut +
+                ", position=" + position +
+                ", num=" + num +
+                ", mimeType='" + mimeType + '\'' +
+                ", chooseModel=" + chooseModel +
+                ", compressed=" + compressed +
+                ", width=" + width +
+                ", height=" + height +
+                ", size=" + size +
+                ", isOriginal=" + isOriginal +
+                ", fileName='" + fileName + '\'' +
+                '}';
+    }
 }

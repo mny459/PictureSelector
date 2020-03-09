@@ -1,5 +1,6 @@
 package com.luck.picture.lib.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import java.util.List;
  */
 public class PictureWeChatPreviewGalleryAdapter
         extends RecyclerView.Adapter<PictureWeChatPreviewGalleryAdapter.ViewHolder> {
+    private static final String TAG = "PictureWeChatPreviewGal";
     private List<LocalMedia> list;
     private PictureSelectionConfig config;
 
@@ -50,6 +52,18 @@ public class PictureWeChatPreviewGalleryAdapter
         }
     }
 
+    /**
+     * 主要是用于修改被编辑的图片的展示
+     *
+     * @param index
+     */
+    public void notifyMediaEdited(int index) {
+        Log.d(TAG, "notifyMediaEdited: " + index);
+        if (index > -1 && index < this.list.size()) {
+            notifyItemChanged(index);
+        }
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -62,9 +76,16 @@ public class PictureWeChatPreviewGalleryAdapter
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         LocalMedia item = getItem(position);
         if (item != null) {
+            // 判断渲染路径
+            String path = item.getPath();
+            Log.d(TAG, "onBindViewHolder: " + path);
+            if (item.getEditPath() != null) {
+                path = item.getEditPath();
+            }
+            Log.d(TAG, "onBindViewHolder: " + path);
             holder.viewBorder.setVisibility(item.isChecked() ? View.VISIBLE : View.GONE);
             if (config != null && config.imageEngine != null) {
-                config.imageEngine.loadImage(holder.itemView.getContext(), item.getPath(), holder.ivImage);
+                config.imageEngine.loadImage(holder.itemView.getContext(), path, holder.ivImage);
             }
 
             holder.itemView.setOnClickListener(v -> {

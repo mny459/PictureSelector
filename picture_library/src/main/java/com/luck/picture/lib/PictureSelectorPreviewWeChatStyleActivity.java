@@ -1,6 +1,10 @@
 package com.luck.picture.lib;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
@@ -16,6 +20,12 @@ import com.luck.picture.lib.decoration.WrapContentLinearLayoutManager;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 
+import java.io.File;
+import java.util.UUID;
+
+import me.kareluo.imaging.IMGEditActivity;
+import me.kareluo.imaging.IMGGalleryActivity;
+
 
 /**
  * @author：luck
@@ -23,12 +33,16 @@ import com.luck.picture.lib.tools.ScreenUtils;
  * @describe：PictureSelector 预览微信风格
  */
 public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewActivity {
+    private static final String TAG = "PictureSelectorPreviewW";
+    private static final int REQ_IMAGE_EDIT = 1111;
     private final static int ALPHA_DURATION = 300;
     private TextView mPictureSendView;
     private RecyclerView mRvGallery;
     private TextView tvSelected;
+    private TextView tvEdit;
     private View bottomLine;
     private PictureWeChatPreviewGalleryAdapter mGalleryAdapter;
+    private int mCurSelectedPosition = 0;
 
     @Override
     public int getResourceId() {
@@ -52,6 +66,8 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
         mRvGallery = findViewById(R.id.rv_gallery);
         bottomLine = findViewById(R.id.bottomLine);
         tvSelected = findViewById(R.id.tv_selected);
+        tvEdit = findViewById(R.id.tv_edit);
+        tvEdit.setOnClickListener(this);
         mPictureSendView = findViewById(R.id.picture_send);
         mPictureSendView.setOnClickListener(this);
         mPictureSendView.setText(getString(R.string.picture_send));
@@ -67,6 +83,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
             if (viewPager != null && media != null) {
                 int newPosition = is_bottom_preview ? position : media.position - 1;
                 viewPager.setCurrentItem(newPosition);
+                mCurSelectedPosition = newPosition;
             }
         });
         if (is_bottom_preview) {
@@ -171,6 +188,24 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
                     // 如果已有勾选则走完成逻辑
                     mTvPictureOk.performClick();
                 }
+            }
+        } else if (id == R.id.tv_edit) {
+            try {
+                LocalMedia media = images.get(mCurSelectedPosition);
+                String originalPath = media.getPath();
+                if (!TextUtils.isEmpty(media.getEditPath())) {
+                    originalPath = media.getEditPath();
+                }
+                File file = new File(originalPath);
+                File editImgFile = new File(this.getCacheDir(), UUID.randomUUID().toString() + ".png");
+                media.setEditPath(editImgFile.getAbsolutePath());
+
+                Intent intent = new Intent(this, IMGEditActivity.class);
+                intent.putExtra(IMGEditActivity.EXTRA_IMAGE_URI, Uri.fromFile(file));
+                intent.putExtra(IMGEditActivity.EXTRA_IMAGE_SAVE_PATH, editImgFile.getAbsolutePath());
+                startActivityForResult(intent, REQ_IMAGE_EDIT);
+            } catch (Exception e) {
+                Log.e(TAG, "onClick: edit error = ", e);
             }
         }
     }
@@ -312,4 +347,43 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
             }
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: " + requestCode + " ========== " + resultCode);
+        if (requestCode == REQ_IMAGE_EDIT) {
+            Log.d(TAG, "onActivityResult: " + images.get(mCurSelectedPosition).getEditPath());
+
+            LocalMedia media = images.get(mCurSelectedPosition);
+            if (resultCode == Activity.RESULT_OK) {
+                adapter.notifyDataSetChanged();
+                for (int i = 0; i < selectImages.size(); i++) {
+                    if (selectImages.get(i).getId() == media.getId()) {
+                        selectImages.get(i).setEditPath(media.getEditPath());
+                        mGalleryAdapter.notifyMediaEdited(i);
+                        break;
+                    }
+                }
+            } else {
+                media.setEditPath(null);
+            }
+
+
+        }
+    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        when (requestCode) {
+//            REQ_IMAGE_CHOOSE -> {
+//                if (resultCode == Activity.RESULT_OK) {
+//                    onChooseImages(IMGGalleryActivity.getImageInfos(data))
+//                }
+//            }
+//            REQ_IMAGE_EDIT -> {
+//                if (resultCode == Activity.RESULT_OK) {
+//                    onImageEditDone()
+//                }
+//            }
+//        }
+//    }
 }
