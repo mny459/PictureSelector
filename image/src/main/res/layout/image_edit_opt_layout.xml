@@ -111,13 +111,50 @@
 
             </me.kareluo.imaging.view.IMGColorGroup>
 
-            <TextView
+            <!--            <TextView-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_gravity="center"-->
+            <!--                android:visibility="gone"-->
+            <!--                android:text="@string/image_mosaic_tip"-->
+            <!--                android:textColor="@color/image_color_white"-->
+            <!--                android:textSize="12sp" />-->
+
+            <RadioGroup
+                android:id="@+id/rg_mosaic_modes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/image_mosaic_tip"
-                android:textColor="@color/image_color_white"
-                android:textSize="12sp" />
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="20dp">
+
+
+                <RadioButton
+                    android:id="@+id/rg_mosaic_grid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@drawable/image_traditional_mosaic"
+                    android:checked="true"
+                    android:gravity="center"
+                    android:onClick="onClick"
+                    android:textColor="#FFF" />
+
+                <Space
+                    android:layout_width="@dimen/image_mode_space"
+                    android:layout_height="wrap_content" />
+
+                <RadioButton
+                    android:id="@+id/rg_mosaic_blur"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@drawable/image_brush_mosaic"
+                    android:gravity="center"
+                    android:onClick="onClick"
+                    android:textColor="#FFF" />
+
+
+            </RadioGroup>
 
         </ViewSwitcher>
 
@@ -163,11 +200,13 @@
             android:gravity="center"
             android:onClick="onClick"
             android:src="@drawable/image_btn_text"
-            android:textColor="#FFF" />
+            android:textColor="#FFF"
+            android:visibility="gone" />
 
         <Space
             android:layout_width="@dimen/image_mode_space"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
         <RadioButton
             android:id="@+id/rb_mosaic"

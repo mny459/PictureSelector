@@ -63,6 +63,7 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
          * 关闭预览Activity
          */
         void onActivityBackPressed();
+        default void onChangeBarsVisibility(){}
     }
 
     public PictureSimpleFragmentAdapter(PictureSelectionConfig config, List<LocalMedia> images,
@@ -145,12 +146,14 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
                 }
                 imageView.setOnViewTapListener((view, x, y) -> {
                     if (onBackPressed != null) {
-                        onBackPressed.onActivityBackPressed();
+                        onBackPressed.onChangeBarsVisibility();
+//                        onBackPressed.onActivityBackPressed();
                     }
                 });
                 longImg.setOnClickListener(v -> {
                     if (onBackPressed != null) {
-                        onBackPressed.onActivityBackPressed();
+                        onBackPressed.onChangeBarsVisibility();
+//                        onBackPressed.onActivityBackPressed();
                     }
                 });
                 ivPlay.setOnClickListener(v -> {
@@ -202,12 +205,14 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
                 }
                 imageView.setOnViewTapListener((view, x, y) -> {
                     if (onBackPressed != null) {
-                        onBackPressed.onActivityBackPressed();
+                        onBackPressed.onChangeBarsVisibility();
+//                        onBackPressed.onActivityBackPressed();
                     }
                 });
                 longImg.setOnClickListener(v -> {
                     if (onBackPressed != null) {
-                        onBackPressed.onActivityBackPressed();
+                        onBackPressed.onChangeBarsVisibility();
+//                        onBackPressed.onActivityBackPressed();
                     }
                 });
             }

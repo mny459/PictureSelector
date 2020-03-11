@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import me.kareluo.imaging.core.IMGMode;
 import me.kareluo.imaging.core.IMGText;
@@ -22,7 +23,7 @@ import java.io.IOException;
  */
 
 public class IMGEditActivity extends IMGEditBaseActivity {
-
+    private static final String TAG = "IMGEditActivity";
     private static final int MAX_WIDTH = 1024;
 
     private static final int MAX_HEIGHT = 1024;
@@ -61,7 +62,7 @@ public class IMGEditActivity extends IMGEditBaseActivity {
                     break;
             }
         }
-
+        Log.d(TAG, "getBitmap: " + uri);
         if (decoder == null) {
             return null;
         }
@@ -128,6 +129,7 @@ public class IMGEditActivity extends IMGEditBaseActivity {
     @Override
     public void onDoneClick() {
         String path = getIntent().getStringExtra(EXTRA_IMAGE_SAVE_PATH);
+        Log.d(TAG, "onDoneClick: " + path);
         if (!TextUtils.isEmpty(path)) {
             Bitmap bitmap = mImgView.saveBitmap();
             if (bitmap != null) {

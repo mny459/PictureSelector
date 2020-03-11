@@ -494,6 +494,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                                     Log.i(TAG, "裁剪:" + media.getCutPath());
                                     Log.i(TAG, "是否开启原图:" + media.isOriginal());
                                     Log.i(TAG, "原图路径:" + media.getOriginalPath());
+                                    Log.i(TAG, "图片编辑图片:" + media.getEditPath());
                                     Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
                                 }
                                 mAdapter.setList(selectList);
@@ -575,6 +576,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                                     Log.i(TAG, "裁剪:" + media.getCutPath());
                                     Log.i(TAG, "是否开启原图:" + media.isOriginal());
                                     Log.i(TAG, "原图路径:" + media.getOriginalPath());
+                                    Log.i(TAG, "图片编辑图片:" + media.getEditPath());
                                     Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
                                 }
                                 mAdapter.setList(selectList);
@@ -614,6 +616,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                         Log.i(TAG, "裁剪:" + media.getCutPath());
                         Log.i(TAG, "是否开启原图:" + media.isOriginal());
                         Log.i(TAG, "原图路径:" + media.getOriginalPath());
+                        Log.i(TAG, "图片编辑图片:" + media.getEditPath());
                         Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
                     }
                     mAdapter.setList(selectList);

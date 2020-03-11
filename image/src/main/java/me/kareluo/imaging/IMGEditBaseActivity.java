@@ -10,6 +10,7 @@ import android.widget.RadioGroup;
 import android.widget.ViewSwitcher;
 
 import me.kareluo.imaging.core.IMGMode;
+import me.kareluo.imaging.core.IMGMosaicMode;
 import me.kareluo.imaging.core.IMGText;
 import me.kareluo.imaging.view.IMGColorGroup;
 import me.kareluo.imaging.view.IMGView;
@@ -99,6 +100,10 @@ abstract class IMGEditBaseActivity extends Activity implements View.OnClickListe
             onResetClipClick();
         } else if (vid == R.id.ib_clip_rotate) {
             onRotateClipClick();
+        } else if (vid == R.id.rg_mosaic_blur) {
+            mImgView.setMosaicModel(IMGMosaicMode.BLUR);
+        } else if (vid == R.id.rg_mosaic_grid) {
+            mImgView.setMosaicModel(IMGMosaicMode.GRID);
         }
     }
 

@@ -3,18 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/picture_color_black"
-    android:fitsSystemWindows="true">
-
-    <include layout="@layout/picture_wechat_style_preview_title_bar" />
+    android:background="@color/picture_color_black">
 
 
     <com.luck.picture.lib.widget.PreviewViewPager
         android:id="@+id/preview_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/titleViewBg" />
+        android:layout_height="match_parent" />
 
+    <include
+        layout="@layout/picture_wechat_style_preview_title_bar"
+        android:fitsSystemWindows="true" />
 
     <View
         android:id="@+id/bottomLine"

@@ -192,6 +192,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
         } else if (id == R.id.tv_edit) {
             try {
                 LocalMedia media = images.get(mCurSelectedPosition);
+                Log.d(TAG, "onClick: "+media);
                 String originalPath = media.getPath();
                 if (!TextUtils.isEmpty(media.getEditPath())) {
                     originalPath = media.getEditPath();
@@ -241,6 +242,12 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
                         || item.getId() == media.getId());
             }
             mGalleryAdapter.notifyDataSetChanged();
+        }
+        // 当前选中的如果不是图片，就不限时编辑按钮
+        if (PictureMimeType.eqImage(media.getMimeType())) {
+            tvEdit.setVisibility(View.VISIBLE);
+        } else {
+            tvEdit.setVisibility(View.GONE);
         }
     }
 
@@ -357,7 +364,9 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
 
             LocalMedia media = images.get(mCurSelectedPosition);
             if (resultCode == Activity.RESULT_OK) {
+                // 刷新大图 ViewPager
                 adapter.notifyDataSetChanged();
+                // 刷新小图
                 for (int i = 0; i < selectImages.size(); i++) {
                     if (selectImages.get(i).getId() == media.getId()) {
                         selectImages.get(i).setEditPath(media.getEditPath());
@@ -372,18 +381,27 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
 
         }
     }
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        when (requestCode) {
-//            REQ_IMAGE_CHOOSE -> {
-//                if (resultCode == Activity.RESULT_OK) {
-//                    onChooseImages(IMGGalleryActivity.getImageInfos(data))
-//                }
-//            }
-//            REQ_IMAGE_EDIT -> {
-//                if (resultCode == Activity.RESULT_OK) {
-//                    onImageEditDone()
-//                }
-//            }
-//        }
-//    }
+
+    @Override
+    public void onChangeBarsVisibility() {
+        if (selectBarLayout.getVisibility() == View.VISIBLE) {
+            selectBarLayout.setVisibility(View.GONE);
+            titleViewBg.setVisibility(View.GONE);
+            tv_title.setVisibility(View.GONE);
+            picture_left_back.setVisibility(View.GONE);
+            check.setVisibility(View.GONE);
+            btnCheck.setVisibility(View.GONE);
+            mPictureSendView.setVisibility(View.GONE);
+            mRvGallery.setVisibility(View.GONE);
+        } else {
+            selectBarLayout.setVisibility(View.VISIBLE);
+            titleViewBg.setVisibility(View.VISIBLE);
+            tv_title.setVisibility(View.VISIBLE);
+            picture_left_back.setVisibility(View.VISIBLE);
+            check.setVisibility(View.VISIBLE);
+            btnCheck.setVisibility(View.VISIBLE);
+            mPictureSendView.setVisibility(View.VISIBLE);
+            mRvGallery.setVisibility(View.VISIBLE);
+        }
+    }
 }

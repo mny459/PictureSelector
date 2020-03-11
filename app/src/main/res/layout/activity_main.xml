@@ -95,7 +95,6 @@
                         android:id="@+id/rb_default_style"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="true"
                         android:text="主题默认样式"
                         android:textColor="@color/app_color_53575e"
                         android:textSize="14sp" />
@@ -128,6 +127,7 @@
                         android:id="@+id/rb_we_chat_style"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checked="true"
                         android:text="主题样式四 (仿微信-全新风格)"
                         android:textColor="@color/app_color_53575e"
                         android:textSize="14sp" />
@@ -173,6 +173,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:text="是否开启原图功能"
+                    android:checked="true"
                     android:textColor="@color/app_color_53575e"
                     android:textSize="14sp" />
 
@@ -363,7 +364,7 @@
                     android:id="@+id/cb_preview_video"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true"
+                    android:checked="false"
                     android:gravity="center_vertical"
                     android:text="是否预览视频"
                     android:textColor="@color/app_color_53575e"

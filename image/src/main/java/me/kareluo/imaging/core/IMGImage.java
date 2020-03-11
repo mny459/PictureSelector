@@ -16,6 +16,7 @@ import me.kareluo.imaging.core.clip.IMGClip;
 import me.kareluo.imaging.core.clip.IMGClipWindow;
 import me.kareluo.imaging.core.homing.IMGHoming;
 import me.kareluo.imaging.core.sticker.IMGSticker;
+import me.kareluo.imaging.core.util.BlurUtils;
 import me.kareluo.imaging.core.util.IMGUtils;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class IMGImage {
     private static final String TAG = "IMGImage";
 
     private Bitmap mImage, mMosaicImage;
+    private Bitmap mBlurMosaic, mGridMosaic;
 
     /**
      * 完整图片边框
@@ -64,6 +66,7 @@ public class IMGImage {
     private boolean isSteady = true;
 
     private Path mShade = new Path();
+    private int mLastBitmapId = 0;
 
     /**
      * 裁剪窗口
@@ -76,6 +79,7 @@ public class IMGImage {
      * 编辑模式
      */
     private IMGMode mMode = IMGMode.NONE;
+    private IMGMosaicMode mMosaicMode = IMGMosaicMode.GRID;
 
     private boolean isFreezing = mMode == IMGMode.CLIP;
 
@@ -83,6 +87,7 @@ public class IMGImage {
      * 可视区域，无Scroll 偏移区域
      */
     private RectF mWindow = new RectF();
+    private final PorterDuffXfermode mXfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
     /**
      * 是否初始位置
@@ -121,6 +126,7 @@ public class IMGImage {
 
     private static final Bitmap DEFAULT_IMAGE;
 
+
     private static final int COLOR_SHADE = 0xCC000000;
 
     static {
@@ -154,7 +160,7 @@ public class IMGImage {
         }
 
         this.mImage = bitmap;
-
+        initMosaicImage(mImage);
         // 清空马赛克图层
         if (mMosaicImage != null) {
             mMosaicImage.recycle();
@@ -168,6 +174,44 @@ public class IMGImage {
 
     public IMGMode getMode() {
         return mMode;
+    }
+
+    public void setMosaicMode(IMGMosaicMode mode, Bitmap mosaicBitmap) {
+        Log.d(TAG, mMosaicMode + " setMosaicMode: " + mode);
+        if (this.mMode != IMGMode.MOSAIC) return;
+        if (mMosaicMode != mode) {
+            mMosaicMode = mode;
+            this.mMosaicImage = null;
+
+            if (mosaicBitmap != null) {
+                boolean sameFromLast = mLastBitmapId == mosaicBitmap.hashCode();
+                Log.d(TAG, sameFromLast + " initBlurImage: " + mMosaicMode);
+                if (mMosaicMode == IMGMosaicMode.GRID) {
+                    if (sameFromLast) {
+                        if (mGridMosaic == null) {
+                            mGridMosaic = BlurUtils.INSTANCE.getGridBlur(mosaicBitmap);
+                        }
+                    } else {
+                        if (mGridMosaic != null && !mGridMosaic.isRecycled()) mGridMosaic.recycle();
+                        mGridMosaic = BlurUtils.INSTANCE.getGridBlur(mosaicBitmap);
+                    }
+                } else if (mMosaicMode == IMGMosaicMode.BLUR) {
+                    if (sameFromLast) {
+                        if (mBlurMosaic == null) {
+                            mBlurMosaic = BlurUtils.INSTANCE.getBlurMosaic(mosaicBitmap);
+                        }
+
+                    } else {
+                        if (mBlurMosaic != null && !mBlurMosaic.isRecycled()) mBlurMosaic.recycle();
+                        mBlurMosaic = BlurUtils.INSTANCE.getBlurMosaic(mosaicBitmap);
+                    }
+                }
+                mLastBitmapId = mosaicBitmap.hashCode();
+            }
+
+            makeMosaicBitmap();
+        }
+        Log.d(TAG, mMosaicMode + " setMosaicMode: " + mode);
     }
 
     public void setMode(IMGMode mode) {
@@ -201,6 +245,7 @@ public class IMGImage {
         } else {
 
             if (mMode == IMGMode.MOSAIC) {
+                mMosaicMode = IMGMosaicMode.GRID;
                 makeMosaicBitmap();
             }
 
@@ -290,20 +335,22 @@ public class IMGImage {
 
         if (mMode == IMGMode.MOSAIC) {
 
-            int w = Math.round(mImage.getWidth() / 64f);
-            int h = Math.round(mImage.getHeight() / 64f);
-
-            w = Math.max(w, 8);
-            h = Math.max(h, 8);
+//            int w = Math.round(mImage.getWidth() / 64f);
+//            int h = Math.round(mImage.getHeight() / 64f);
+//
+//            w = Math.max(w, 8);
+//            h = Math.max(h, 8);
 
             // 马赛克画刷
             if (mMosaicPaint == null) {
                 mMosaicPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
                 mMosaicPaint.setFilterBitmap(false);
-                mMosaicPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
             }
-
-            mMosaicImage = Bitmap.createScaledBitmap(mImage, w, h, false);
+            if (mMosaicMode == IMGMosaicMode.BLUR) {
+                mMosaicImage = mBlurMosaic;
+            } else {
+                mMosaicImage = mGridMosaic;
+            }
         }
     }
 
@@ -395,7 +442,8 @@ public class IMGImage {
         M.postTranslate(-mFrame.left, -mFrame.top);
         M.postScale(scale, scale);
         path.transform(M);
-
+        path.setMosaicMode(mMosaicMode);
+        Log.d(TAG, getMosaicMode() + "===== addPath: " + mMosaicMode);
         switch (path.getMode()) {
             case DOODLE:
                 mDoodles.add(path);
@@ -526,7 +574,7 @@ public class IMGImage {
         if (DEBUG) {
             // Clip 区域
             mPaint.setColor(Color.RED);
-            mPaint.setStrokeWidth(6);
+//            mPaint.setStrokeWidth(6);
             canvas.drawRect(mFrame, mPaint);
             canvas.drawRect(mClipFrame, mPaint);
         }
@@ -534,7 +582,7 @@ public class IMGImage {
 
     public int onDrawMosaicsPath(Canvas canvas) {
         int layerCount = canvas.saveLayer(mFrame, null, Canvas.ALL_SAVE_FLAG);
-
+        Log.d(TAG, "onDrawMosaicsPath: " + mMosaics.size() + "=== left = " + mFrame.left + " right = " + mFrame.right);
         if (!isMosaicEmpty()) {
             canvas.save();
             float scale = getScale();
@@ -549,13 +597,66 @@ public class IMGImage {
         return layerCount;
     }
 
+    public int onNewDrawMosaicsPath(Canvas canvas) {
+        Log.d(TAG, "onDrawMosaicsPath: " + mMosaics.size() + "=== left = " + mFrame.left + " right = " + mFrame.right);
+        int layerCount = canvas.saveLayer(mFrame, null, Canvas.ALL_SAVE_FLAG);
+
+        if (!isMosaicEmpty()) {
+
+            for (IMGPath path : mMosaics) {
+                int count = canvas.saveLayer(mFrame, null, Canvas.ALL_SAVE_FLAG);
+                canvas.save();
+                float scale = getScale();
+                canvas.translate(mFrame.left, mFrame.top);
+                canvas.scale(scale, scale);
+                // 1. 先划线
+                path.onDrawMosaic(canvas, mPaint);
+                canvas.restore();
+                // 2. 再画马赛克
+                mMosaicPaint.setXfermode(mXfermode);
+                canvas.drawBitmap(getMosaicImgByMode(path.getMosaicMode()), null, mFrame, mMosaicPaint);
+                mMosaicPaint.setXfermode(null);
+                canvas.restoreToCount(count);
+            }
+        }
+        return layerCount;
+//        return 0;
+    }
+
+    public void onDrawingMosaicsPath(Canvas canvas, Path path, IMGMosaicMode mosaicMode, float scrollX, float scrollY) {
+        Log.d(TAG, "onDrawingMosaicsPath: " + mosaicMode + "=========" + path);
+        int count = canvas.saveLayer(mFrame, null, Canvas.ALL_SAVE_FLAG);
+
+        mPaint.setColor(Color.RED);
+        mPaint.setStrokeWidth(IMGPath.BASE_MOSAIC_WIDTH);
+
+        canvas.save();
+        RectF frame = getClipFrame();
+        canvas.rotate(-getRotate(), frame.centerX(), frame.centerY());
+        canvas.translate(scrollX, scrollY);
+        canvas.drawPath(path, mPaint);
+        canvas.restore();
+
+        mPaint.setColor(Color.RED);
+        // 2. 再画马赛克
+        mMosaicPaint.setXfermode(mXfermode);
+        canvas.drawBitmap(getMosaicImgByMode(mosaicMode), null, mFrame, mMosaicPaint);
+        mMosaicPaint.setXfermode(null);
+        canvas.restoreToCount(count);
+//        return 0;
+    }
+
     public void onDrawMosaic(Canvas canvas, int layerCount) {
+        mMosaicPaint.setXfermode(mXfermode);
         canvas.drawBitmap(mMosaicImage, null, mFrame, mMosaicPaint);
+        mMosaicPaint.setXfermode(null);
         canvas.restoreToCount(layerCount);
     }
 
-    public void onDrawDoodles(Canvas canvas) {
+    public void onDrawDoodles(Canvas canvas, int penWidth,Paint paint) {
+        Log.d(TAG, "onDrawDoodles: mPenWidth = "+penWidth);
         if (!isDoodleEmpty()) {
+            mPaint.setStrokeWidth(penWidth);
             canvas.save();
             float scale = getScale();
             canvas.translate(mFrame.left, mFrame.top);
@@ -769,6 +870,12 @@ public class IMGImage {
     public void release() {
         if (mImage != null && !mImage.isRecycled()) {
             mImage.recycle();
+            if (getBlurMosaic() != null) {
+                getBlurMosaic().recycle();
+            }
+            if (getGridMosaic() != null) {
+                getGridMosaic().recycle();
+            }
         }
     }
 
@@ -778,5 +885,45 @@ public class IMGImage {
         if (DEFAULT_IMAGE != null) {
             DEFAULT_IMAGE.recycle();
         }
+        if (getBlurMosaic() != null) {
+            getBlurMosaic().recycle();
+        }
+        if (getGridMosaic() != null) {
+            getGridMosaic().recycle();
+        }
+    }
+
+    public Bitmap getBlurMosaic() {
+//        if (mBlurMosaic == null) {
+//            mBlurMosaic = BlurUtils.INSTANCE.getBlurMosaic();
+//        }
+        return mBlurMosaic;
+    }
+
+    public Bitmap getGridMosaic() {
+//        if (mGridMosaic == null) {
+//            mGridMosaic = BlurUtils.INSTANCE.getGridBlur();
+//        }
+        return mGridMosaic;
+    }
+
+    public void initMosaicImage(Bitmap blur_image) {
+        mGridMosaic = BlurUtils.INSTANCE.getGridBlur(blur_image);
+        mBlurMosaic = BlurUtils.INSTANCE.getBlurMosaic(blur_image);
+        mLastBitmapId = blur_image.hashCode();
+    }
+
+    public IMGMosaicMode getMosaicMode() {
+        return mMosaicMode;
+    }
+
+    public Bitmap getMosaicImgByMode(IMGMosaicMode mosaicMode) {
+        Bitmap bitmap;
+        if (mosaicMode == IMGMosaicMode.BLUR) {
+            bitmap = mBlurMosaic;
+        } else {
+            bitmap = mGridMosaic;
+        }
+        return bitmap;
     }
 }

@@ -1,6 +1,7 @@
 package com.luck.pictureselector;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ItemTouchHelper mItemTouchHelper;
     private DragListener mDragListener;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -410,6 +412,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private GridImageAdapter.onAddPicClickListener onAddPicClickListener = new GridImageAdapter.onAddPicClickListener() {
+        @SuppressLint("SourceLockedOrientationActivity")
         @Override
         public void onAddPicClick() {
             boolean mode = cb_mode.isChecked();
@@ -499,6 +502,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     Log.i(TAG, "裁剪:" + media.getCutPath());
                                     Log.i(TAG, "是否开启原图:" + media.isOriginal());
                                     Log.i(TAG, "原图路径:" + media.getOriginalPath());
+                                    Log.i(TAG, "图片编辑图片:" + media.getEditPath());
                                     Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
                                 }
                                 mAdapter.setList(result);
@@ -614,6 +618,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.i(TAG, "裁剪:" + media.getCutPath());
                         Log.i(TAG, "是否开启原图:" + media.isOriginal());
                         Log.i(TAG, "原图路径:" + media.getOriginalPath());
+                        Log.i(TAG, "图片编辑图片:" + media.getEditPath());
                         Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
                     }
                     mAdapter.setList(selectList);

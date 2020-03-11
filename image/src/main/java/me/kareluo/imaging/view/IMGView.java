@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.CornerPathEffect;
@@ -22,14 +23,17 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 
+import me.kareluo.imaging.R;
 import me.kareluo.imaging.core.IMGImage;
 import me.kareluo.imaging.core.IMGMode;
+import me.kareluo.imaging.core.IMGMosaicMode;
 import me.kareluo.imaging.core.IMGPath;
 import me.kareluo.imaging.core.IMGText;
 import me.kareluo.imaging.core.anim.IMGHomingAnimator;
 import me.kareluo.imaging.core.homing.IMGHoming;
 import me.kareluo.imaging.core.sticker.IMGSticker;
 import me.kareluo.imaging.core.sticker.IMGStickerPortrait;
+import me.kareluo.imaging.core.util.ScreenUtils;
 
 /**
  * Created by felix on 2017/11/14 下午6:43.
@@ -53,11 +57,12 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
     private Pen mPen = new Pen();
 
     private int mPointerCount = 0;
-
     private Paint mDoodlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private Paint mMosaicPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
+    private Bitmap mBlurImage;
+    private Bitmap mGridImage;
+    private int mPenWidth;
     private static final boolean DEBUG = true;
 
     {
@@ -93,8 +98,13 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
 
     private void initialize(Context context) {
         mPen.setMode(mImage.getMode());
+        mPenWidth = ScreenUtils.dip2px(context, 3f);
         mGDetector = new GestureDetector(context, new MoveAdapter());
         mSGDetector = new ScaleGestureDetector(context, this);
+        mBlurImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.image_brush_mosaic);
+        mGridImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.image_traditional_mosaic);
+        Log.d(TAG, mGridImage + " initialize: " + mBlurImage);
+//        mImage.initBlurImage(BLUR_IMAGE, GRID_IMAGE);
     }
 
     public void setImageBitmap(Bitmap image) {
@@ -211,24 +221,34 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
 
         // 马赛克
         if (!mImage.isMosaicEmpty() || (mImage.getMode() == IMGMode.MOSAIC && !mPen.isEmpty())) {
-            int count = mImage.onDrawMosaicsPath(canvas);
+            int count = mImage.onNewDrawMosaicsPath(canvas);
             if (mImage.getMode() == IMGMode.MOSAIC && !mPen.isEmpty()) {
-                mDoodlePaint.setStrokeWidth(IMGPath.BASE_MOSAIC_WIDTH);
-                canvas.save();
-                RectF frame = mImage.getClipFrame();
-                canvas.rotate(-mImage.getRotate(), frame.centerX(), frame.centerY());
-                canvas.translate(getScrollX(), getScrollY());
-                canvas.drawPath(mPen.getPath(), mDoodlePaint);
-                canvas.restore();
+                mImage.onDrawingMosaicsPath(canvas, mPen.getPath(), mPen.getMosaicMode()
+                        , getScrollX(), getScrollY());
             }
-            mImage.onDrawMosaic(canvas, count);
+            canvas.restoreToCount(count);
+
+//            int count = mImage.onDrawMosaicsPath(canvas);
+//            if (mImage.getMode() == IMGMode.MOSAIC && !mPen.isEmpty()) {
+//                mDoodlePaint.setColor(Color.TRANSPARENT);
+//                mDoodlePaint.setStrokeWidth(IMGPath.BASE_MOSAIC_WIDTH);
+//                canvas.save();
+//                RectF frame = mImage.getClipFrame();
+//                canvas.rotate(-mImage.getRotate(), frame.centerX(), frame.centerY());
+//                canvas.translate(getScrollX(), getScrollY());
+//                canvas.drawPath(mPen.getPath(), mDoodlePaint);
+//                canvas.restore();
+//            }
+//            mImage.onDrawMosaic(canvas, count);
         }
 
         // 涂鸦
-        mImage.onDrawDoodles(canvas);
+        mImage.onDrawDoodles(canvas, mPenWidth, mDoodlePaint);
         if (mImage.getMode() == IMGMode.DOODLE && !mPen.isEmpty()) {
             mDoodlePaint.setColor(mPen.getColor());
-            mDoodlePaint.setStrokeWidth(IMGPath.BASE_DOODLE_WIDTH * mImage.getScale());
+            mDoodlePaint.setStrokeWidth(mPenWidth*mImage.getScale());
+
+            Log.d(TAG, "onDrawImages: mPenWidth = " + mPenWidth);
             canvas.save();
             RectF frame = mImage.getClipFrame();
             canvas.rotate(-mImage.getRotate(), frame.centerX(), frame.centerY());
@@ -353,6 +373,7 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 removeCallbacks(this);
+                mPen.setMosaicMode(mImage.getMosaicMode());
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
@@ -419,6 +440,7 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
     private boolean onPathBegin(MotionEvent event) {
         mPen.reset(event.getX(), event.getY());
         mPen.setIdentity(event.getPointerId(0));
+        invalidate();
         return true;
     }
 
@@ -435,6 +457,7 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
         if (mPen.isEmpty()) {
             return false;
         }
+        mPen.setMosaicMode(mImage.getMosaicMode());
         mImage.addPath(mPen.toPath(), getScrollX(), getScrollY());
         mPen.reset();
         invalidate();
@@ -465,6 +488,12 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         removeCallbacks(this);
+        if (mBlurImage != null) {
+            mBlurImage.recycle();
+        }
+        if (mGridImage != null) {
+            mGridImage.recycle();
+        }
         mImage.release();
     }
 
@@ -582,6 +611,10 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
         return onScrollTo(getScrollX() + Math.round(dx), getScrollY() + Math.round(dy));
     }
 
+    public void setMosaicModel(IMGMosaicMode model) {
+        mImage.setMosaicMode(model, null);
+    }
+
     private class MoveAdapter extends GestureDetector.SimpleOnGestureListener {
 
         @Override
@@ -633,7 +666,8 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
         }
 
         IMGPath toPath() {
-            return new IMGPath(new Path(this.path), getMode(), getColor(), getWidth());
+            return new IMGPath(new Path(this.path), getMode(), getColor(), getWidth(), getMosaicMode());
         }
     }
+
 }

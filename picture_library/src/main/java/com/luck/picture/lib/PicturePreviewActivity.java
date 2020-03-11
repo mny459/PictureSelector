@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -793,6 +794,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
     @Override
     public void onBackPressed() {
+        Log.d("TAG", "onBackPressed: ");
         updateResult();
         if (config.windowAnimationStyle != null
                 && config.windowAnimationStyle.activityPreviewExitAnimation != 0) {
@@ -852,5 +854,10 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     @Override
     public void onActivityBackPressed() {
         onBackPressed();
+    }
+
+    @Override
+    public void onChangeBarsVisibility() {
+        onActivityBackPressed();
     }
 }
