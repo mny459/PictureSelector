@@ -243,12 +243,10 @@ public class IMGView extends FrameLayout implements Runnable, ScaleGestureDetect
         }
 
         // 涂鸦
-        mImage.onDrawDoodles(canvas, mPenWidth, mDoodlePaint);
+        mImage.onDrawDoodles(canvas, mPenWidth);
         if (mImage.getMode() == IMGMode.DOODLE && !mPen.isEmpty()) {
             mDoodlePaint.setColor(mPen.getColor());
             mDoodlePaint.setStrokeWidth(mPenWidth*mImage.getScale());
-
-            Log.d(TAG, "onDrawImages: mPenWidth = " + mPenWidth);
             canvas.save();
             RectF frame = mImage.getClipFrame();
             canvas.rotate(-mImage.getRotate(), frame.centerX(), frame.centerY());

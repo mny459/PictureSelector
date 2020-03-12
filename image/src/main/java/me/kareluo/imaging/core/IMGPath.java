@@ -101,7 +101,6 @@ public class IMGPath {
         if (mode == IMGMode.DOODLE) {
             paint.setColor(color);
             // rewind
-            Log.d("TAG", "mPenWidth = "+paint.getStrokeWidth());
             canvas.drawPath(path, paint);
         }
     }

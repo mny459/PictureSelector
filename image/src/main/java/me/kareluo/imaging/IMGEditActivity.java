@@ -62,7 +62,7 @@ public class IMGEditActivity extends IMGEditBaseActivity {
                     break;
             }
         }
-        Log.d(TAG, "getBitmap: " + uri);
+        Log.d(TAG, "getBitmap: 传餐 = " + uri);
         if (decoder == null) {
             return null;
         }
@@ -129,7 +129,7 @@ public class IMGEditActivity extends IMGEditBaseActivity {
     @Override
     public void onDoneClick() {
         String path = getIntent().getStringExtra(EXTRA_IMAGE_SAVE_PATH);
-        Log.d(TAG, "onDoneClick: " + path);
+        Log.d(TAG, "onDoneClick: 传餐 = " + path);
         if (!TextUtils.isEmpty(path)) {
             Bitmap bitmap = mImgView.saveBitmap();
             if (bitmap != null) {

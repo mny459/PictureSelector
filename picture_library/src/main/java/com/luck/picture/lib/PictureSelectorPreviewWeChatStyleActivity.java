@@ -192,7 +192,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
         } else if (id == R.id.tv_edit) {
             try {
                 LocalMedia media = images.get(mCurSelectedPosition);
-                Log.d(TAG, "onClick: "+media);
+                Log.d(TAG, "onClick: 传餐 = "+media);
                 String originalPath = media.getPath();
                 if (!TextUtils.isEmpty(media.getEditPath())) {
                     originalPath = media.getEditPath();

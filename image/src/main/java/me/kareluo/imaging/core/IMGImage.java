@@ -653,8 +653,7 @@ public class IMGImage {
         canvas.restoreToCount(layerCount);
     }
 
-    public void onDrawDoodles(Canvas canvas, int penWidth,Paint paint) {
-        Log.d(TAG, "onDrawDoodles: mPenWidth = "+penWidth);
+    public void onDrawDoodles(Canvas canvas, int penWidth) {
         if (!isDoodleEmpty()) {
             mPaint.setStrokeWidth(penWidth);
             canvas.save();
