@@ -1,4 +1,4 @@
-package com.luck.pictureselector;
+package com.luck.pictureselector.imagepicker;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -22,6 +22,7 @@ import com.luck.picture.lib.tools.MediaUtils;
 import com.luck.picture.lib.widget.longimage.ImageSource;
 import com.luck.picture.lib.widget.longimage.ImageViewState;
 import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
+import com.luck.pictureselector.R;
 
 /**
  * @author：luck

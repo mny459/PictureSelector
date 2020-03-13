@@ -50,6 +50,7 @@ import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.ToastUtils;
 import com.luck.pictureselector.adapter.GridImageAdapter;
+import com.luck.pictureselector.imagepicker.GlideEngine;
 import com.luck.pictureselector.listener.DragListener;
 
 import java.util.ArrayList;

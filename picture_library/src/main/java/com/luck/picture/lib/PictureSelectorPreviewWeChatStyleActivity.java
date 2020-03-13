@@ -154,6 +154,11 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
             if (!TextUtils.isEmpty(config.style.pictureUnCompleteText)) {
                 mPictureSendView.setText(config.style.pictureUnCompleteText);
             }
+            if (config.enableEdit) {
+                tvEdit.setVisibility(View.VISIBLE);
+            }else {
+                tvEdit.setVisibility(View.GONE);
+            }
         } else {
             mPictureSendView.setBackgroundResource(R.drawable.picture_send_button_bg);
             mPictureSendView.setTextColor(ContextCompat.getColor(getContext(), R.color.picture_color_white));

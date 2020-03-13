@@ -148,6 +148,23 @@ public class PictureSelectionModel {
     }
 
     /**
+     * @param enableEdit Do you want to start editing ?
+     * @return
+     */
+    public PictureSelectionModel enableEdit(boolean enableEdit) {
+        selectionConfig.enableEdit = enableEdit;
+        return this;
+    }
+    /**
+     * @param enableTrans Do you want to start tran Data Struct To special?
+     * @return
+     */
+    public PictureSelectionModel enableTrans(boolean enableTrans) {
+        selectionConfig.enableTrans = enableTrans;
+        return this;
+    }
+
+    /**
      * @param uCropOptions UCrop parameter configuration is provided
      * @return
      */

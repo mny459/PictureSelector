@@ -105,6 +105,8 @@ public final class PictureSelectionConfig implements Parcelable {
     public List<LocalMedia> selectionMedias;
     public String cameraFileName;
     public boolean isCheckOriginalImage;
+    public boolean enableEdit;
+    public boolean enableTrans;
     @Deprecated
     public int overrideWidth;
     @Deprecated
@@ -178,6 +180,8 @@ public final class PictureSelectionConfig implements Parcelable {
         isGif = false;
         focusAlpha = false;
         isCheckOriginalImage = false;
+        enableEdit = false;
+        enableTrans = false;
         isSingleDirectReturn = false;
         enablePreview = true;
         enPreviewVideo = true;
@@ -337,6 +341,8 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeTypedList(this.selectionMedias);
         dest.writeString(this.cameraFileName);
         dest.writeByte(this.isCheckOriginalImage ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.enableEdit ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.enableTrans ? (byte) 1 : (byte) 0);
         dest.writeInt(this.overrideWidth);
         dest.writeInt(this.overrideHeight);
         dest.writeFloat(this.sizeMultiplier);
@@ -431,6 +437,8 @@ public final class PictureSelectionConfig implements Parcelable {
         this.selectionMedias = in.createTypedArrayList(LocalMedia.CREATOR);
         this.cameraFileName = in.readString();
         this.isCheckOriginalImage = in.readByte() != 0;
+        this.enableEdit = in.readByte() != 0;
+        this.enableTrans = in.readByte() != 0;
         this.overrideWidth = in.readInt();
         this.overrideHeight = in.readInt();
         this.sizeMultiplier = in.readFloat();
