@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion cfgs.compileSdkVersion
+    compileSdkVersion 29
     buildToolsVersion cfgs.buildToolsVersion
 
     defaultConfig {
         minSdkVersion cfgs.minSdkVersion
-        targetSdkVersion cfgs.targetSdkVersion
+        targetSdkVersion 29
         versionCode 24
         versionName "2.2.4-non-native"
 
